@@ -88,26 +88,28 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-    float t=0;
+    double t = 0;
     delay_init();
     LCD_Init();
-    LCD_Fill(0,0,LCD_W,LCD_H,WHITE);
+    LCD_Fill(0, 0, LCD_W, LCD_H, WHITE);
+    Init_I2C_Sensor_Port();
+    HAL_Delay(1);
+    if((AHT20_Read_Status()&0x18)!=0x18)
+    {
+        AHT20_Start_Init(); //重新初始化寄存器，一般不需要此初始化，只有当读回的状态字节不正确时才初始化AHT20
+        Delay_1ms(10);
+    }
+    uint32_t CT_data[2];
+    volatile int  c1,t1;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+    while (1) {
     /* USER CODE END WHILE */
-      LCD_ShowChinese(0,0,"现在温度",RED,WHITE,24,0);
-      LCD_ShowString(24,30,"LCD_W:",RED,WHITE,16,0);
-      LCD_ShowIntNum(72,30,LCD_W,3,RED,WHITE,16);
-      LCD_ShowString(24,50,"LCD_H:",RED,WHITE,16,0);
-      LCD_ShowIntNum(72,50,LCD_H,3,RED,WHITE,16);
-      LCD_ShowFloatNum1(20,80,t,4,RED,WHITE,16);
-      t+=0.11;
+
     /* USER CODE BEGIN 3 */
-  }
+    }
   /* USER CODE END 3 */
 }
 
@@ -123,10 +125,12 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -136,11 +140,11 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -169,7 +173,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_HARD_INPUT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -196,40 +200,42 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(TSDA_GPIO_Port, TSDA_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, QSDA_Pin|TSCL_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(QSDA_GPIO_Port, QSDA_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, QSDAB6_Pin|QSCL_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pins : RES_Pin DC_Pin BLK_Pin QSCL_Pin */
-  GPIO_InitStruct.Pin = RES_Pin|DC_Pin|BLK_Pin|QSCL_Pin;
+  /*Configure GPIO pins : RES_Pin DC_Pin BLK_Pin */
+  GPIO_InitStruct.Pin = RES_Pin|DC_Pin|BLK_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : TSDA_Pin */
-  GPIO_InitStruct.Pin = TSDA_Pin;
+  /*Configure GPIO pins : QSDA_Pin TSCL_Pin */
+  GPIO_InitStruct.Pin = QSDA_Pin|TSCL_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : QSDAB6_Pin */
+  GPIO_InitStruct.Pin = QSDAB6_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(TSDA_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(QSDAB6_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : TSCL_Pin */
-  GPIO_InitStruct.Pin = TSCL_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(TSCL_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : QSDA_Pin */
-  GPIO_InitStruct.Pin = QSDA_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  /*Configure GPIO pin : QSCL_Pin */
+  GPIO_InitStruct.Pin = QSCL_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(QSDA_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(QSCL_GPIO_Port, &GPIO_InitStruct);
 
 }
 
@@ -244,11 +250,10 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+    /* User can add his own implementation to report the HAL error return state */
+    __disable_irq();
+    while (1) {
+    }
   /* USER CODE END Error_Handler_Debug */
 }
 

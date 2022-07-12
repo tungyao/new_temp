@@ -35,6 +35,8 @@ extern "C" {
 #include "lcd.h"
 #include "sys.h"
 #include "lcd_init.h"
+#include "AHT20.h"
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -74,14 +76,14 @@ void Error_Handler(void);
 #define RES_GPIO_Port GPIOB
 #define DC_Pin GPIO_PIN_13
 #define DC_GPIO_Port GPIOB
-#define TSDA_Pin GPIO_PIN_8
-#define TSDA_GPIO_Port GPIOA
+#define QSDA_Pin GPIO_PIN_8
+#define QSDA_GPIO_Port GPIOA
 #define TSCL_Pin GPIO_PIN_9
 #define TSCL_GPIO_Port GPIOA
 #define BLK_Pin GPIO_PIN_4
 #define BLK_GPIO_Port GPIOB
-#define QSDA_Pin GPIO_PIN_6
-#define QSDA_GPIO_Port GPIOB
+#define QSDAB6_Pin GPIO_PIN_6
+#define QSDAB6_GPIO_Port GPIOB
 #define QSCL_Pin GPIO_PIN_7
 #define QSCL_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */

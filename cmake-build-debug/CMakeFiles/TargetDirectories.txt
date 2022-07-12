@@ -1,3 +1,0 @@
-E:/Cache/new_temp/cmake-build-debug/CMakeFiles/new_temp.elf.dir
-E:/Cache/new_temp/cmake-build-debug/CMakeFiles/edit_cache.dir
-E:/Cache/new_temp/cmake-build-debug/CMakeFiles/rebuild_cache.dir
