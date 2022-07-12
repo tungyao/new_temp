@@ -192,7 +192,7 @@ void SDA_OUT(void)
 
     /*    HAL库使用，HAL库注意要把初始化函数的静态标记去掉    */
     GPIO_InitTypeDef GPIO_InitStruct;
-    GPIO_InitStruct.Pin = SDA_Pin;                    //使用STM3cubemx是定义好的SDA_Pin为GPIO_PIN_8的标签
+    GPIO_InitStruct.Pin = GPIO_PIN_8;                    //使用STM3cubemx是定义好的SDA_Pin为GPIO_PIN_8的标签
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -220,33 +220,9 @@ void SDA_IN(void)
 
     /*    HAL库使用, HAL库注意要把初始化函数的静态标记去掉    */
     GPIO_InitTypeDef GPIO_InitStruct;
-    GPIO_InitStruct.Pin = SDA_Pin    ;                    //使用STM3cubemx是定义好的SDA_Pin为GPIO_PIN_8的标签
+    GPIO_InitStruct.Pin = GPIO_PIN_8    ;                    //使用STM3cubemx是定义好的SDA_Pin为GPIO_PIN_8的标签
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-}
-
-
-/*******************************************************************************
-* 函 数 名         : delay_us
-* 函数功能         : 延时函数，延时us
-* 输    入         : i
-* 输    出         : 无
-*******************************************************************************/
-void delay_us(uint32_t i)
-{
-    uint32_t temp;
-    SysTick->LOAD=9*i;                     //设置重装数值, 72MHZ时
-    SysTick->CTRL=0X01;                 //使能，减到零是无动作，采用外部时钟源
-    SysTick->VAL=0;                 //清零计数器
-
-    do
-    {
-        temp=SysTick->CTRL;                            //读取当前倒计数值
-    }
-    while((temp&0x01)&&(!(temp&(1<<16))));     //等待时间到达
-
-    SysTick->CTRL=0;         //关闭计数器
-    SysTick->VAL=0;        //清空计数器
 }

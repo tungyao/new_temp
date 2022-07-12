@@ -92,11 +92,11 @@ int main(void)
     delay_init();
     LCD_Init();
     LCD_Fill(0, 0, LCD_W, LCD_H, WHITE);
-    Init_I2C_Sensor_Port();
+    Init_T_I2C_Sensor_Port();
     HAL_Delay(1);
     if((AHT20_Read_Status()&0x18)!=0x18)
     {
-        AHT20_Start_Init(); //重新初始化寄存器，一般不需要此初始化，只有当读回的状态字节不正确时才初始化AHT20
+        AHT20_Start_Init(); //重新初始化寄存器，一般不�?要此初始化，只有当读回的状�?�字节不正确时才初始化AHT20
         Delay_1ms(10);
     }
     uint32_t CT_data[2];
@@ -205,15 +205,19 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, RES_Pin|DC_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, QSDA_Pin|TSCL_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, QSDAB6_Pin|QSCL_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOB, BLK_Pin|QSDAB6_Pin|QSCL_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : RES_Pin DC_Pin BLK_Pin */
   GPIO_InitStruct.Pin = RES_Pin|DC_Pin|BLK_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : QSDA_Pin TSCL_Pin */

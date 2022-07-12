@@ -1,6 +1,6 @@
 #include "delay.h"
 
-static int8_t  fac_us=0;//us
+static int8_t  fac_us=4;//us
 static int16_t fac_ms=0;//ms
 
 void delay_init()	 

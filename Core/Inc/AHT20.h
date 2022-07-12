@@ -18,7 +18,7 @@ void SDA_Pin_Output_Low(void);
 void SDA_Pin_IN_FLOATING(void);
 void SCL_Pin_Output_High(void);
 void SCL_Pin_Output_Low(void);
-void Init_I2C_Sensor_Port(void);
+void Init_T_I2C_Sensor_Port(void);
 void I2C_Start(void);
 void AHT20_WR_Byte(uint8_t Byte);
 uint8_t AHT20_RD_Byte(void);

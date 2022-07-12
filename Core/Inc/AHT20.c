@@ -50,6 +50,7 @@ void AHT20_Clock_Init(void)        //延时函数
 //    HAL_RCC_ClockConfig()
 //    HAL_RCCEx_PeriphCLKConfig(RCC_AHBENR_GPIOBEN,ENABLE);
 //    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+//    HAL_RCC_ClockConfig(,ENABLE);
 }
 
 void SDA_Pin_Output_High(void)   //将PB15配置为输出 ， 并设置为高电平， PB15作为I2C的SDA
@@ -95,13 +96,10 @@ void SCL_Pin_Output_Low(void) //SCL输出低电平
 
 }
 
-void Init_I2C_Sensor_Port(void) //初始化I2C接口,输出为高电平
+void Init_T_I2C_Sensor_Port(void) //初始化I2C接口,输出为高电平
 {
     GPIO_InitTypeDef GPIO_InitStruct;
-
-    AHT20_Clock_Init();
-
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;//开漏输出
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;//开漏输出
     GPIO_InitStruct.Pin = GPIO_PIN_9;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -109,7 +107,7 @@ void Init_I2C_Sensor_Port(void) //初始化I2C接口,输出为高电平
 //    GPIO_SetBits(GPIOB, GPIO_Pin_1);//输出高电平
 
 
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;//开漏输出
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;//开漏输出
     GPIO_InitStruct.Pin = GPIO_PIN_9;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
