@@ -1,0 +1,8 @@
+# ninja log v5
+1	173	1657694118548183636	CMakeFiles/new_temp2.elf.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c.obj	2c910ca8a6d4974b
+1	174	1657694118548180440	CMakeFiles/new_temp2.elf.dir/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c.obj	70c3ff3906348a6b
+1	136	1657694137036831089	CMakeFiles/new_temp2.elf.dir/Core/HARDWARE/LED/led.c.obj	f48ab7d8fb20cf81
+1	208	1657694137109261015	CMakeFiles/new_temp2.elf.dir/Core/SYSTEM/delay/delay.c.obj	882640aff5ec9b2c
+2	145	1657694148144647279	CMakeFiles/new_temp2.elf.dir/Core/SYSTEM/sys/sys.c.obj	5ae7db56a07d7409
+145	223	1657694148222394466	CMakeFiles/new_temp2.elf.dir/Core/Src/stm32f1xx_hal_msp.c.obj	b9ca2d6e861c6272
+2	224	1657694148222725368	CMakeFiles/new_temp2.elf.dir/Core/Src/main.c.obj	77e914df1d5d43ce

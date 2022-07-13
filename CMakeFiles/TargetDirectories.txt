@@ -1,0 +1,3 @@
+/Users/tungyap/Documents/GitHub/new_temp2/CMakeFiles/new_temp2.elf.dir
+/Users/tungyap/Documents/GitHub/new_temp2/CMakeFiles/edit_cache.dir
+/Users/tungyap/Documents/GitHub/new_temp2/CMakeFiles/rebuild_cache.dir
