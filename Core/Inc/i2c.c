@@ -6,7 +6,7 @@
 *****************************************************************************/
 
 #include "i2c.h"
-
+#include "delay.h"
 
 /*******************************************************************************
 * 函 数 名         : i2c_stare
@@ -14,8 +14,7 @@
 * 输    入         : 无
 * 输    出         : 无
 *******************************************************************************/
-void i2c_stare(void)
-{
+void i2c_stare(void) {
     SDA_OUT();
     I2C_SDA_UP;
     I2C_SCL_UP;
@@ -32,8 +31,7 @@ void i2c_stare(void)
 * 输    入         : 无
 * 输    出         : 无
 *******************************************************************************/
-void i2c_stop(void)
-{
+void i2c_stop(void) {
     SDA_OUT();            //sda线输出
     I2C_SDA_LOW;         //发送结束条件的数据信号
     I2C_SCL_UP;
@@ -50,19 +48,14 @@ void i2c_stop(void)
 * 输    入         : uint8_t dat,要发送的数据
 * 输    出         : 无
 *******************************************************************************/
-void i2c_send(uint8_t dat)
-{
+void i2c_send(uint8_t dat) {
 
     unsigned char temp;
     SDA_OUT();
-    for(temp=0x80;temp!=0;temp>>=1)
-    {
-        if((temp & dat)== 0)
-        {
+    for (temp = 0x80; temp != 0; temp >>= 1) {
+        if ((temp & dat) == 0) {
             I2C_SDA_LOW;
-        }
-        else
-        {
+        } else {
             I2C_SDA_UP;
         }
         delay_us(1);
@@ -79,23 +72,18 @@ void i2c_send(uint8_t dat)
 * 输    入         : 无
 * 输    出         : 无
 *******************************************************************************/
-uint8_t i2c_read(void)
-{
+uint8_t i2c_read(void) {
     unsigned char temp;
     unsigned char dat;
     I2C_SDA_UP;                     //释放总线准备接收
     SDA_IN();
-    for(temp=0x80;temp!=0;temp>>=1)
-    {
+    for (temp = 0x80; temp != 0; temp >>= 1) {
         delay_us(1);
         I2C_SCL_UP;
-        if(I2C_SDA==1)
-        {
-            dat|=temp;
-        }
-        else
-        {
-            dat&=~temp;
+        if (I2C_SDA == 1) {
+            dat |= temp;
+        } else {
+            dat &= ~temp;
         }
         I2C_SCL_LOW;
     }
@@ -109,10 +97,9 @@ uint8_t i2c_read(void)
 * 输    入         : 无
 * 输    出         : 0/1，返回1表示无应答信号，返回0表示应答
 *******************************************************************************/
-char i2c_wit_ack(void)
-{
+char i2c_wit_ack(void) {
 
-    uint8_t con=0;
+    uint8_t con = 0;
 
     I2C_SDA_UP;       //释放数据线，准备接收应答
     delay_us(1);
@@ -120,11 +107,10 @@ char i2c_wit_ack(void)
     SDA_IN();
     delay_us(1);
 
-    while( I2C_SDA )    //CPU读取SDA口线状态
+    while (I2C_SDA)    //CPU读取SDA口线状态
     {
         con++;
-        if(con>255)
-        {
+        if (con > 255) {
             i2c_stop();
             return 1;     //无应答信号
         }
@@ -141,8 +127,7 @@ char i2c_wit_ack(void)
 * 输    入         : 无
 * 输    出         : 无
 *******************************************************************************/
-void i2c_ack(void)
-{
+void i2c_ack(void) {
     SDA_OUT();
     I2C_SDA_LOW;
     delay_us(1);
@@ -160,8 +145,7 @@ void i2c_ack(void)
 * 输    入         : 无
 * 输    出         : 无
 *******************************************************************************/
-void I2C_No_ack(void)
-{
+void I2C_No_ack(void) {
     SDA_OUT();
     I2C_SDA_UP;
     delay_us(1);
@@ -178,8 +162,7 @@ void I2C_No_ack(void)
 * 输    入         : 无
 * 输    出         : 无
 *******************************************************************************/
-void SDA_OUT(void)
-{
+void SDA_OUT(void) {
 
 /*    标准库使用，修改端口引脚可用
   GPIO_InitTypeDef GPIO_InitTypeStruct;
@@ -192,11 +175,11 @@ void SDA_OUT(void)
 
     /*    HAL库使用，HAL库注意要把初始化函数的静态标记去掉    */
     GPIO_InitTypeDef GPIO_InitStruct;
-    GPIO_InitStruct.Pin = GPIO_PIN_8;                    //使用STM3cubemx是定义好的SDA_Pin为GPIO_PIN_8的标签
+    GPIO_InitStruct.Pin = QSDA_Pin;                    //使用STM3cubemx是定义好的SDA_Pin为GPIO_PIN_8的标签
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(QSDA_GPIO_Port, &GPIO_InitStruct);
 }
 
 
@@ -206,8 +189,7 @@ void SDA_OUT(void)
 * 输    入         : 无
 * 输    出         : 无
 *******************************************************************************/
-void SDA_IN(void)
-{
+void SDA_IN(void) {
 
 /*    标准库使用，修改端口引脚可用
   GPIO_InitTypeDef GPIO_InitTypeStruct;
@@ -220,9 +202,9 @@ void SDA_IN(void)
 
     /*    HAL库使用, HAL库注意要把初始化函数的静态标记去掉    */
     GPIO_InitTypeDef GPIO_InitStruct;
-    GPIO_InitStruct.Pin = GPIO_PIN_8    ;                    //使用STM3cubemx是定义好的SDA_Pin为GPIO_PIN_8的标签
+    GPIO_InitStruct.Pin = QSDA_Pin;                    //使用STM3cubemx是定义好的SDA_Pin为GPIO_PIN_8的标签
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(QSDA_GPIO_Port, &GPIO_InitStruct);
 }
