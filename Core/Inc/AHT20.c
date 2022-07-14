@@ -1,15 +1,11 @@
 
 #include "stm32f0xx.h"
 #include "AHT20.h"
-
+#include "delay.h"
 
 void Delay_N10us(uint32_t t)//延时函数
 {
-    uint32_t k;
-
-    while (t--) {
-        for (k = 0; k < 2; k++);//110
-    }
+    delay_us(10);
 }
 
 void SensorDelay_us(uint32_t t)//延时函数
@@ -22,25 +18,18 @@ void SensorDelay_us(uint32_t t)//延时函数
 
 void Delay_4us(void)        //延时函数
 {
-    Delay_N10us(1);
-    Delay_N10us(1);
-    Delay_N10us(1);
-    Delay_N10us(1);
+    delay_us(4);
+
 }
 
 void Delay_5us(void)        //延时函数
 {
-    Delay_N10us(1);
-    Delay_N10us(1);
-    Delay_N10us(1);
-    Delay_N10us(1);
-    Delay_N10us(1);
-
+    delay_us(5);
 }
 
 void Delay_1ms(uint32_t t)        //延时函数
 {
-    HAL_Delay(1);
+    delay_ms(1);
 }
 
 

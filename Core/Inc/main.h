@@ -31,12 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "delay.h"
-#include "lcd.h"
-#include "sys.h"
-#include "lcd_init.h"
-#include "AHT20.h"
-#include "stdio.h"
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -46,6 +41,7 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
+static TIM_HandleTypeDef htim1;
 
 /* USER CODE END EC */
 

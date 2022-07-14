@@ -1,134 +1,96 @@
 #include "lcd_init.h"
 #include "delay.h"
+#include "stm32f0xx.h"
+#include "main.h"
 
-//void LCD_GPIO_Init(void)
-//{
-//	GPIO_InitTypeDef GPIO_InitStructure;
-//	GPIO_InitStructure.Pin = GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5;
-//	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-//	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-//	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
-//    SET_BIT(GPIOA,GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5);
-//}
+// PB13 DC
+// PB12 RES
+// PB4 BLK
+void LCD_GPIO_Init(void) {
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+    GPIO_InitStructure.Pin = DC_Pin | RES_Pin | BLK_Pin;
+    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+    HAL_GPIO_WritePin(GPIOB, DC_Pin | RES_Pin | BLK_Pin, GPIO_PIN_SET);
+}
 
 
-/******************************************************************************
-      ����˵����LCD��������д�뺯��
-      ������ݣ�dat  Ҫд��Ĵ�������
-      ����ֵ��  ��
-******************************************************************************/
-void LCD_Writ_Bus(u8 dat)
-{
+void LCD_Writ_Bus(u8 dat) {
     u8 i;
     LCD_CS_Clr();
-    for(i=0;i<8;i++)
-    {
+    for (i = 0; i < 8; i++) {
         LCD_SCLK_Clr();
 
-        if(dat&0x80)
-        {
+        if (dat & 0x80) {
             LCD_MOSI_Set();
-        }
-        else
-        {
+        } else {
             LCD_MOSI_Clr();
         }
         LCD_SCLK_Set();
-        dat<<=1;
+        dat <<= 1;
     }
     LCD_CS_Set();
 }
 
 
-/******************************************************************************
-      ����˵����LCDд������
-      ������ݣ�dat д�������
-      ����ֵ��  ��
-******************************************************************************/
-void LCD_WR_DATA8(u8 dat)
-{
+void LCD_WR_DATA8(u8 dat) {
     LCD_Writ_Bus(dat);
 }
 
 
-/******************************************************************************
-      ����˵����LCDд������
-      ������ݣ�dat д�������
-      ����ֵ��  ��
-******************************************************************************/
-void LCD_WR_DATA(u16 dat)
-{
-    LCD_Writ_Bus(dat>>8);
+void LCD_WR_DATA(u16 dat) {
+    LCD_Writ_Bus(dat >> 8);
     LCD_Writ_Bus(dat);
 }
 
 
-/******************************************************************************
-      ����˵����LCDд������
-      ������ݣ�dat д�������
-      ����ֵ��  ��
-******************************************************************************/
-void LCD_WR_REG(u8 dat)
-{
+
+void LCD_WR_REG(u8 dat) {
     LCD_DC_Clr();//д����
     LCD_Writ_Bus(dat);
     LCD_DC_Set();//д����
 }
 
 
-/******************************************************************************
-      ����˵����������ʼ�ͽ�����ַ
-      ������ݣ�x1,x2 �����е���ʼ�ͽ�����ַ
-                y1,y2 �����е���ʼ�ͽ�����ַ
-      ����ֵ��  ��
-******************************************************************************/
-void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2)
-{
-    if(USE_HORIZONTAL==0)
-    {
-        LCD_WR_REG(0x2a);//�е�ַ����
-        LCD_WR_DATA(x1+2);
-        LCD_WR_DATA(x2+2);
+
+void LCD_Address_Set(u16 x1, u16 y1, u16 x2, u16 y2) {
+    if (USE_HORIZONTAL == 0) {
+        LCD_WR_REG(0x2a);
+        LCD_WR_DATA(x1 + 2);
+        LCD_WR_DATA(x2 + 2);
         LCD_WR_REG(0x2b);//�е�ַ����
-        LCD_WR_DATA(y1+1);
-        LCD_WR_DATA(y2+1);
+        LCD_WR_DATA(y1 + 1);
+        LCD_WR_DATA(y2 + 1);
         LCD_WR_REG(0x2c);//������д
-    }
-    else if(USE_HORIZONTAL==1)
-    {
+    } else if (USE_HORIZONTAL == 1) {
         LCD_WR_REG(0x2a);//�е�ַ����
-        LCD_WR_DATA(x1+2);
-        LCD_WR_DATA(x2+2);
+        LCD_WR_DATA(x1 + 2);
+        LCD_WR_DATA(x2 + 2);
         LCD_WR_REG(0x2b);//�е�ַ����
-        LCD_WR_DATA(y1+1);
-        LCD_WR_DATA(y2+1);
+        LCD_WR_DATA(y1 + 1);
+        LCD_WR_DATA(y2 + 1);
         LCD_WR_REG(0x2c);//������д
-    }
-    else if(USE_HORIZONTAL==2)
-    {
+    } else if (USE_HORIZONTAL == 2) {
         LCD_WR_REG(0x2a);//�е�ַ����
-        LCD_WR_DATA(x1+1);
-        LCD_WR_DATA(x2+1);
+        LCD_WR_DATA(x1 + 1);
+        LCD_WR_DATA(x2 + 1);
         LCD_WR_REG(0x2b);//�е�ַ����
-        LCD_WR_DATA(y1+2);
-        LCD_WR_DATA(y2+2);
+        LCD_WR_DATA(y1 + 2);
+        LCD_WR_DATA(y2 + 2);
         LCD_WR_REG(0x2c);//������д
-    }
-    else
-    {
-        LCD_WR_REG(0x2a);//�е�ַ����
-        LCD_WR_DATA(x1+1);
-        LCD_WR_DATA(x2+1);
-        LCD_WR_REG(0x2b);//�е�ַ����
-        LCD_WR_DATA(y1+2);
-        LCD_WR_DATA(y2+2);
-        LCD_WR_REG(0x2c);//������д
+    } else {
+        LCD_WR_REG(0x2a);
+        LCD_WR_DATA(x1 + 1);
+        LCD_WR_DATA(x2 + 1);
+        LCD_WR_REG(0x2b);
+        LCD_WR_DATA(y1 + 2);
+        LCD_WR_DATA(y2 + 2);
+        LCD_WR_REG(0x2c);
     }
 }
 
-void LCD_Init(void)
-{
+void LCD_Init(void) {
 
     LCD_RES_Clr();//��λ
     delay_ms(100);
@@ -180,9 +142,9 @@ void LCD_Init(void)
     LCD_WR_REG(0xC5); //VCOM
     LCD_WR_DATA8(0x1A);
     LCD_WR_REG(0x36); //MX, MY, RGB mode
-    if(USE_HORIZONTAL==0)LCD_WR_DATA8(0x00);
-    else if(USE_HORIZONTAL==1)LCD_WR_DATA8(0xC0);
-    else if(USE_HORIZONTAL==2)LCD_WR_DATA8(0x70);
+    if (USE_HORIZONTAL == 0)LCD_WR_DATA8(0x00);
+    else if (USE_HORIZONTAL == 1)LCD_WR_DATA8(0xC0);
+    else if (USE_HORIZONTAL == 2)LCD_WR_DATA8(0x70);
     else LCD_WR_DATA8(0xA0);
     //------------------------------------ST7735S Gamma Sequence---------------------------------//
     LCD_WR_REG(0xE0);
